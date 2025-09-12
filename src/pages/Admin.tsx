@@ -20,6 +20,7 @@ export default function Admin() {
   const handleLogoutToken = () => {
     localStorage.removeItem("token");
     alert("Token eliminado, pero el usuario sigue en localStorage.");
+    window.location.reload();
   };
 
   // 🔹 “Ping” simulado → siempre abre modal

@@ -87,7 +87,6 @@ export default function Products() {
                 <p className="text-gray-500 text-sm mt-2 line-clamp-2">
                   {product.description || "Producto sin descripción"}
                 </p>
-
                 <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
                   Añadir al carrito
                 </button>

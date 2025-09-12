@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 /** Forma del usuario (ajusta si tu token trae otros campos) */
 export interface User {
+  id: number;
   email: string;
   role: "admin" | "user";
 }

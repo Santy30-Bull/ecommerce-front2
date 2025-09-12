@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import { loginRequest } from "../api/auth";
 
 interface DecodedToken {
+  sub: number;
   email: string;
   role: "admin" | "user";
   exp: number;
@@ -39,6 +40,7 @@ export default function Login() {
       const decoded = jwtDecode<DecodedToken>(token);
 
       const userData = {
+        id: decoded.sub,
         email: decoded.email,
         role: decoded.role,
       };
