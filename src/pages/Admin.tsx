@@ -31,6 +31,11 @@ export default function Admin() {
       return;
     }
 
+    if (pingUrl.trim().length < 3) {
+      alert("El proveedor debe tener al menos 3 caracteres.");
+      return;
+    }
+
     try {
       const res = await axios.get(
         `http://localhost:3000/orders/logistic?supplier=${pingUrl}`
@@ -38,13 +43,13 @@ export default function Admin() {
 
       console.log("Respuesta del backend:", res.data);
 
-      if (res.status === 200 && res.data.statusCode === 200) {
+      if (res.data && res.data.statusCode === 200) {
         setModalOpen(true);
       } else {
         alert("Proveedor no disponible o inválido.");
       }
     } catch (err: any) {
-      console.error(err);
+      console.error("Error en la petición:", err);
       alert("Proveedor no disponible o inválido.");
     }
   };
@@ -183,6 +188,20 @@ export default function Admin() {
                     onChange={(e) => setDescription(e.target.value)}
                     className="border px-3 py-2 rounded"
                   />
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={productVisible}
+                      onChange={(e) => setProductVisible(e.target.checked)}
+                    />
+                    Visible
+                  </label>
+                  <button
+                    type="submit"
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+                  >
+                    Guardar
+                  </button>
                 </form>
               </div>
             </div>
