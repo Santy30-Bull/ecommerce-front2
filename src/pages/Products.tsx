@@ -1,6 +1,5 @@
 // src/pages/Products.tsx
 import { useEffect, useState } from "react";
-import { getProducts } from "../api/products";
 
 interface Product {
   id: number;
@@ -10,8 +9,10 @@ interface Product {
 }
 
 export default function Products() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]); // todos los productos
+  const [products, setProducts] = useState<Product[]>([]); // productos filtrados
   const [loading, setLoading] = useState<boolean>(true);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,9 +24,10 @@ export default function Products() {
           return;
         }
 
-        // Se obtiene la lista de productos con la API correcta
-        const data = await getProductsWithAuth(token);
-        setProducts(data);
+        const dataArray = await getProducts();
+        setAllProducts(dataArray);
+        setProducts(dataArray);
+        console.log("Productos cargados:", dataArray);
       } catch (err) {
         console.error("Error al cargar productos:", err);
       } finally {
@@ -36,11 +38,44 @@ export default function Products() {
     fetchData();
   }, []);
 
-  const getProductsWithAuth = async (token: string): Promise<Product[]> => {
-    const data = await getProducts();
-    // Si necesitas el token en headers, puedes mover la lógica a getProducts:
-    // await axios.get(`${API_URL}/products/visibles`, { headers: { Authorization: `Bearer ${token}` } })
-    return data;
+  const getProducts = async (): Promise<Product[]> => {
+  const res = await fetch("http://localhost:3000/products/visibles");
+  if (!res.ok) throw new Error("Error al obtener productos");
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+};
+
+
+  const searchProducts = async (name: string) => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Token no encontrado");
+
+    const res = await fetch(
+      `http://localhost:3000/products/search?name=${encodeURIComponent(name)}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    if (!res.ok) throw new Error("Error al buscar productos");
+    return res.json(); // devuelve { message, data: [...] }
+  };
+
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      // Si el input está vacío, mostramos todos los productos
+      setProducts(allProducts);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const results = await searchProducts(searchTerm);
+      const dataArray = results.data || [];
+      setProducts(dataArray);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
@@ -57,6 +92,23 @@ export default function Products() {
         🛒 Nuestros Productos
       </h2>
 
+      {/* Barra de búsqueda */}
+      <div className="flex justify-center mb-8">
+        <input
+          type="text"
+          placeholder="Buscar producto..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full max-w-md px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        />
+        <button
+          onClick={handleSearch}
+          className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          Buscar
+        </button>
+      </div>
+
       {products.length === 0 ? (
         <p className="text-center text-gray-500 text-lg">
           No hay productos disponibles en este momento.
@@ -70,10 +122,7 @@ export default function Products() {
             >
               {/* Imagen del producto */}
               <div className="relative">
-                <img
-                  alt={product.name}
-                  className="w-full h-56 object-cover"
-                />
+                <img alt={product.name} className="w-full h-56 object-cover" />
                 <span className="absolute top-3 right-3 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
                   ${product.price}
                 </span>
