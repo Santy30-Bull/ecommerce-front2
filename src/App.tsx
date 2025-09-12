@@ -1,38 +1,39 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Products from "./pages/Products";
 import AdminPage from "./pages/Admin";
 import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
+import Navbar from "./components/Navbar";
 
 export default function AppRoutes() {
+  const location = useLocation();
+  const showNavbar = ["/products", "/admin"].includes(location.pathname);
+
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-
-      {/* Ruta protegida para cualquier usuario logueado */}
-      <Route
-        path="/products"
-        element={
-          <ProtectedRoute>
-            <Products />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Ruta solo para administradores */}
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute adminOnly>
-            <AdminPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Default: redirige al login */}
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+    <>
+      {showNavbar && <Navbar />}
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/products"
+          element={
+            <ProtectedRoute>
+              <Products />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute adminOnly>
+              <AdminPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </>
   );
 }
