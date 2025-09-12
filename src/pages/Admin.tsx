@@ -4,11 +4,12 @@ import axios from "axios";
 
 export default function Admin() {
   const auth = useContext(AuthContext);
-
   if (!auth) throw new Error("Admin debe estar dentro de <AuthProvider>");
   const { user } = auth;
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [pingUrl, setPingUrl] = useState("");
+
   const [productId, setProductId] = useState<number | undefined>(undefined);
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState<number | undefined>(undefined);
@@ -22,9 +23,29 @@ export default function Admin() {
     alert("Token eliminado, pero el usuario sigue en localStorage.");
   };
 
-  // 🔹 “Ping” simulado → siempre abre modal
-  const handlePing = () => {
-    setModalOpen(true); // Abrimos el modal
+  // 🔹 “Ping” real → si da 200 abre modal
+  const handlePing = async () => {
+    if (!pingUrl.trim()) {
+      alert("Por favor ingresa una IP o DNS.");
+      return;
+    }
+
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/orders/logistic?supplier=${pingUrl}`
+      );
+
+      console.log("Respuesta del backend:", res.data);
+
+      if (res.status === 200 && res.data.statusCode === 200) {
+        setModalOpen(true);
+      } else {
+        alert("Proveedor no disponible o inválido.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert("Proveedor no disponible o inválido.");
+    }
   };
 
   // 🔹 Crear o actualizar producto dinámicamente
@@ -43,28 +64,21 @@ export default function Admin() {
       productData.visible = productVisible;
 
       if (productId) {
-        // 🔹 PUT → Actualizar producto existente
         await axios.put(
           `http://localhost:3000/products/${productId}`,
           productData,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         alert(`Producto con ID ${productId} actualizado ✅`);
       } else {
-        // 🔹 POST → Crear producto nuevo
         await axios.post(
           "http://localhost:3000/products",
           productData,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         alert("Producto creado con éxito ✅");
       }
 
-      // Reset y cerrar modal
       setModalOpen(false);
       setProductId(undefined);
       setProductName("");
@@ -87,7 +101,7 @@ export default function Admin() {
           <p>Email: {user.email}</p>
           <p>Rol: {user.role}</p>
 
-          <div className="mt-4 flex gap-4">
+          <div className="mt-4 flex gap-4 flex-col">
             <button
               onClick={handleLogoutToken}
               className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
@@ -95,12 +109,22 @@ export default function Admin() {
               Logout (solo token)
             </button>
 
-            <button
-              onClick={handlePing}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-            >
-              Abrir Formulario (Ping simulado)
-            </button>
+            {/* 🔹 Input para IP/DNS */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="IP o DNS (ej: google.com)"
+                value={pingUrl}
+                onChange={(e) => setPingUrl(e.target.value)}
+                className="border px-3 py-2 rounded w-full"
+              />
+              <button
+                onClick={handlePing}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+              >
+                Ping & Abrir Formulario
+              </button>
+            </div>
           </div>
 
           {/* 🔹 Modal */}
@@ -151,29 +175,13 @@ export default function Admin() {
                     }
                     className="border px-3 py-2 rounded"
                   />
-                <input
-                  type="text"
-                  placeholder="Descripción"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="border px-3 py-2 rounded"
-                />
-
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={productVisible}
-                      onChange={(e) => setProductVisible(e.target.checked)}
-                    />
-                    Visible
-                  </label>
-
-                  <button
-                    type="submit"
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-                  >
-                    {productId ? "Actualizar" : "Crear"}
-                  </button>
+                  <input
+                    type="text"
+                    placeholder="Descripción"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="border px-3 py-2 rounded"
+                  />
                 </form>
               </div>
             </div>
