@@ -1,4 +1,3 @@
-// src/pages/Signup.tsx
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { signUpRequest } from "../api/auth";
@@ -23,12 +22,35 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gradient-to-br from-green-100 via-green-200 to-green-300 px-4">
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #d4f8d4, #b2e6b2)',
+      padding: '1rem',
+      fontFamily: 'Segoe UI, sans-serif',
+      boxSizing: 'border-box'
+    }}>
       <form
-        className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md"
         onSubmit={handleSubmit}
+        style={{
+          background: '#fff',
+          padding: '2rem',
+          borderRadius: '16px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+          width: '100%',
+          maxWidth: '420px',
+          boxSizing: 'border-box'
+        }}
       >
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+        <h2 style={{
+          fontSize: '1.8rem',
+          fontWeight: 'bold',
+          marginBottom: '1.5rem',
+          textAlign: 'center',
+          color: '#333'
+        }}>
           Registro
         </h2>
 
@@ -36,44 +58,101 @@ export default function Signup() {
         <input
           type="text"
           placeholder="Nombre"
-          className="w-full p-3 mb-4 border rounded-lg focus:ring-2 focus:ring-green-400 outline-none transition"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          style={{
+            width: '100%',
+            padding: '0.75rem 1rem',
+            marginBottom: '1rem',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            outline: 'none',
+            fontSize: '1rem',
+            boxSizing: 'border-box'
+          }}
+          onFocus={(e) => e.currentTarget.style.border = '1px solid #28a745'}
+          onBlur={(e) => e.currentTarget.style.border = '1px solid #ccc'}
         />
 
         {/* Email */}
         <input
           type="email"
           placeholder="Email"
-          className="w-full p-3 mb-4 border rounded-lg focus:ring-2 focus:ring-green-400 outline-none transition"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          style={{
+            width: '100%',
+            padding: '0.75rem 1rem',
+            marginBottom: '1rem',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            outline: 'none',
+            fontSize: '1rem',
+            boxSizing: 'border-box'
+          }}
+          onFocus={(e) => e.currentTarget.style.border = '1px solid #28a745'}
+          onBlur={(e) => e.currentTarget.style.border = '1px solid #ccc'}
         />
 
         {/* Password */}
         <input
           type="password"
           placeholder="Password"
-          className="w-full p-3 mb-6 border rounded-lg focus:ring-2 focus:ring-green-400 outline-none transition"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          style={{
+            width: '100%',
+            padding: '0.75rem 1rem',
+            marginBottom: '1.5rem',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            outline: 'none',
+            fontSize: '1rem',
+            boxSizing: 'border-box'
+          }}
+          onFocus={(e) => e.currentTarget.style.border = '1px solid #28a745'}
+          onBlur={(e) => e.currentTarget.style.border = '1px solid #ccc'}
         />
 
         {/* Botón */}
         <button
           type="submit"
-          className="bg-green-500 hover:bg-green-600 text-white font-semibold px-4 py-2 rounded-lg w-full transition transform hover:scale-[1.02] active:scale-95"
+          style={{
+            background: '#28a745',
+            color: '#fff',
+            fontWeight: '600',
+            padding: '0.75rem',
+            borderRadius: '8px',
+            border: 'none',
+            width: '100%',
+            fontSize: '1rem',
+            cursor: 'pointer',
+            transition: 'background 0.3s ease, transform 0.2s ease'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.background = '#218838'}
+          onMouseOut={(e) => e.currentTarget.style.background = '#28a745'}
+          onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+          onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
           Registrarse
         </button>
 
-        <p className="text-center text-sm text-gray-500 mt-4">
+        <p style={{
+          fontSize: '0.9rem',
+          color: '#666',
+          textAlign: 'center',
+          marginTop: '1.5rem'
+        }}>
           ¿Ya tienes cuenta?{" "}
           <span
-            className="text-green-600 hover:underline cursor-pointer"
+            style={{
+              color: '#28a745',
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
             onClick={() => navigate("/login")}
           >
             Inicia sesión

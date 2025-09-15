@@ -24,6 +24,8 @@ export default function Admin() {
   const [orderProductId, setOrderProductId] = useState<number | undefined>(undefined);
   const [orderQuantity, setOrderQuantity] = useState<number | undefined>(undefined);
   const [orderSupplier, setOrderSupplier] = useState("");
+  const [msg, setMsg] = useState<string>("");
+
 
   // 🔹 Logout solo token
   const handleLogoutToken = () => {
@@ -43,6 +45,13 @@ export default function Admin() {
         setOrderSupplier(pingUrl);
         setOrderModalOpen(true);
       }
+      const result = res.data;
+      // Accedes directamente al campo 'mensaje'
+      const mensajeDelServidor = result.mensaje;
+      // Lo puedes guardar en el estado para mostrarlo en el modal
+      setMsg(mensajeDelServidor);
+
+    // Abrir el modal de órdenes
     } catch (err) {
       console.error(err);
       alert("No se pudo conectar con el servidor o la respuesta no fue exitosa.");
@@ -135,170 +144,210 @@ export default function Admin() {
   };
 
   return (
-    <div className="p-8">
-      <h2 className="text-3xl font-bold">Panel de Administración</h2>
-      <p className="mt-4">Solo los administradores pueden ver esta página.</p>
+  <div style={{ padding: '2rem', fontFamily: 'Arial, sans-serif' }}>
+    <h2 style={{ fontSize: '2rem', fontWeight: 'bold' }}>Panel de Administración</h2>
+    <p style={{ marginTop: '1rem' }}>Solo los administradores pueden ver esta página.</p>
 
-      {user && (
-        <div className="mt-6 bg-gray-100 p-4 rounded-lg">
-          <h3 className="font-semibold">Usuario logueado:</h3>
-          <p>Email: {user.email}</p>
-          <p>Rol: {user.role}</p>
+    {user && (
+      <div style={{ marginTop: '2rem', backgroundColor: '#f3f3f3', padding: '1rem', borderRadius: '8px' }}>
+        <h3 style={{ fontWeight: '600' }}>Usuario logueado:</h3>
+        <p>Email: {user.email}</p>
+        <p>Rol: {user.role}</p>
 
-          <div className="mt-4 flex flex-col gap-4">
+        <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <button
+            onClick={handleLogoutToken}
+            style={{
+              backgroundColor: '#e53e3e',
+              color: '#fff',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            Logout (solo token)
+          </button>
+
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              type="text"
+              placeholder="IP o DNS (ej: google.com)"
+              value={pingUrl}
+              onChange={(e) => setPingUrl(e.target.value)}
+              style={{
+                flex: 1,
+                padding: '0.5rem',
+                borderRadius: '6px',
+                border: '1px solid #ccc'
+              }}
+            />
             <button
-              onClick={handleLogoutToken}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+              onClick={handlePing}
+              style={{
+                backgroundColor: '#3182ce',
+                color: '#fff',
+                padding: '0.5rem 1rem',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: 'pointer'
+              }}
             >
-              Logout (solo token)
+              Ping & Abrir Órdenes
             </button>
-
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="IP o DNS (ej: google.com)"
-                value={pingUrl}
-                onChange={(e) => setPingUrl(e.target.value)}
-                className="border px-3 py-2 rounded w-full"
-              />
-              <button
-                onClick={handlePing}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-              >
-                Ping & Abrir Órdenes
-              </button>
-              <button
-                onClick={() => setProductModalOpen(true)}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-              >
-                Abrir Productos
-              </button>
-            </div>
+            <button
+              onClick={() => setProductModalOpen(true)}
+              style={{
+                backgroundColor: '#38a169',
+                color: '#fff',
+                padding: '0.5rem 1rem',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              Administrar productos
+            </button>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
-      {/* MODAL PRODUCTOS */}
-      {productModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 relative">
-            <button
-              onClick={() => setProductModalOpen(false)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 font-bold"
-            >
-              ✕
+    {/* MODAL PRODUCTOS */}
+    {productModalOpen && (
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 50
+      }}>
+        <div style={{
+          backgroundColor: '#fff',
+          padding: '1.5rem',
+          borderRadius: '10px',
+          width: '400px',
+          position: 'relative'
+        }}>
+          <button
+            onClick={() => setProductModalOpen(false)}
+            style={{
+              position: 'absolute',
+              top: '0.5rem',
+              right: '0.5rem',
+              fontWeight: 'bold',
+              color: '#555',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            ✕
+          </button>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            {productId ? "Actualizar Producto" : "Crear Producto"}
+          </h3>
+          <form onSubmit={handleSubmitProduct} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <input type="number" placeholder="ID (solo si quieres actualizar)" value={productId ?? ""}
+              onChange={(e) => setProductId(e.target.value ? Number(e.target.value) : undefined)}
+              style={inputStyle} />
+            <input type="text" placeholder="Nombre del producto" value={productName}
+              onChange={(e) => setProductName(e.target.value)} style={inputStyle} />
+            <input type="number" placeholder="Precio" value={productPrice ?? ""}
+              onChange={(e) => setProductPrice(e.target.value ? Number(e.target.value) : undefined)} style={inputStyle} />
+            <input type="number" placeholder="Stock" value={productStock ?? ""}
+              onChange={(e) => setProductStock(e.target.value ? Number(e.target.value) : undefined)} style={inputStyle} />
+            <input type="text" placeholder="Descripción" value={description}
+              onChange={(e) => setDescription(e.target.value)} style={inputStyle} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input type="checkbox" checked={productVisible}
+                onChange={(e) => setProductVisible(e.target.checked)} />
+              Visible
+            </label>
+            <button type="submit" style={submitButtonStyle}>
+              {productId ? "Actualizar" : "Crear"}
             </button>
-            <h3 className="text-xl font-bold mb-4">
-              {productId ? "Actualizar Producto" : "Crear Producto"}
-            </h3>
-            <form onSubmit={handleSubmitProduct} className="flex flex-col gap-3">
-              <input
-                type="number"
-                placeholder="ID (solo si quieres actualizar)"
-                value={productId ?? ""}
-                onChange={(e) =>
-                  setProductId(e.target.value ? Number(e.target.value) : undefined)
-                }
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                type="text"
-                placeholder="Nombre del producto"
-                value={productName}
-                onChange={(e) => setProductName(e.target.value)}
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                type="number"
-                placeholder="Precio"
-                value={productPrice ?? ""}
-                onChange={(e) =>
-                  setProductPrice(e.target.value ? Number(e.target.value) : undefined)
-                }
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                type="number"
-                placeholder="Stock"
-                value={productStock ?? ""}
-                onChange={(e) =>
-                  setProductStock(e.target.value ? Number(e.target.value) : undefined)
-                }
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                type="text"
-                placeholder="Descripción"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="border px-3 py-2 rounded"
-              />
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={productVisible}
-                  onChange={(e) => setProductVisible(e.target.checked)}
-                />
-                Visible
-              </label>
-              <button
-                type="submit"
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-              >
-                {productId ? "Actualizar" : "Crear"}
-              </button>
-            </form>
-          </div>
+          </form>
         </div>
-      )}
+      </div>
+    )}
 
-      {/* MODAL ÓRDENES */}
-      {orderModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 relative">
-            <button
-              onClick={() => setOrderModalOpen(false)}
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 font-bold"
-            >
-              ✕
+    {/* MODAL ÓRDENES */}
+    {orderModalOpen && (
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 50
+      }}>
+        <div style={{
+          backgroundColor: '#fff',
+          padding: '1.5rem',
+          borderRadius: '10px',
+          width: '400px',
+          position: 'relative'
+        }}>
+          <button
+            onClick={() => setOrderModalOpen(false)}
+            style={{
+              position: 'absolute',
+              top: '0.5rem',
+              right: '0.5rem',
+              fontWeight: 'bold',
+              color: '#555',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            ✕
+          </button>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem' }}>Crear Orden</h3>
+            <p style={{ fontWeight: 'bold' }}>Estado del servidor del proveedor: </p>
+            <p>{msg}</p>
+          <form onSubmit={handleSubmitOrder} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <input type="number" placeholder="ID del producto" value={orderProductId ?? ""}
+              onChange={(e) => setOrderProductId(e.target.value ? Number(e.target.value) : undefined)} style={inputStyle} />
+            <input type="number" placeholder="Cantidad" value={orderQuantity ?? ""}
+              onChange={(e) => setOrderQuantity(e.target.value ? Number(e.target.value) : undefined)} style={inputStyle} />
+            <input type="text" placeholder="Proveedor" value={orderSupplier}
+              onChange={(e) => setOrderSupplier(e.target.value)} style={inputStyle} />
+            <button type="submit" style={{
+              backgroundColor: '#3182ce',
+              color: '#fff',
+              padding: '0.5rem 1rem',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer'
+            }}>
+              Crear Orden
             </button>
-            <h3 className="text-xl font-bold mb-4">Crear Orden</h3>
-            <form onSubmit={handleSubmitOrder} className="flex flex-col gap-3">
-              <input
-                type="number"
-                placeholder="ID del producto"
-                value={orderProductId ?? ""}
-                onChange={(e) =>
-                  setOrderProductId(e.target.value ? Number(e.target.value) : undefined)
-                }
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                type="number"
-                placeholder="Cantidad"
-                value={orderQuantity ?? ""}
-                onChange={(e) =>
-                  setOrderQuantity(e.target.value ? Number(e.target.value) : undefined)
-                }
-                className="border px-3 py-2 rounded"
-              />
-              <input
-                type="text"
-                placeholder="Proveedor"
-                value={orderSupplier}
-                onChange={(e) => setOrderSupplier(e.target.value)}
-                className="border px-3 py-2 rounded"
-              />
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-              >
-                Crear Orden
-              </button>
-            </form>
-          </div>
+          </form>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    )}
+  </div>
+);
 }
+
+// Estilos reutilizables
+const inputStyle = {
+  padding: '0.5rem',
+  borderRadius: '6px',
+  border: '1px solid #ccc'
+};
+
+const submitButtonStyle = {
+  backgroundColor: '#38a169',
+  color: '#fff',
+  padding: '0.5rem 1rem',
+  borderRadius: '6px',
+  border: 'none',
+  cursor: 'pointer'
+};
+

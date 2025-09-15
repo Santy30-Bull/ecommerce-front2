@@ -1,5 +1,6 @@
-// src/pages/Products.tsx
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import ProductCard from "../components/ProductCard";
 
 interface Product {
   id: number;
@@ -9,10 +10,11 @@ interface Product {
 }
 
 export default function Products() {
-  const [allProducts, setAllProducts] = useState<Product[]>([]); // todos los productos
-  const [products, setProducts] = useState<Product[]>([]); // productos filtrados
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,12 +41,11 @@ export default function Products() {
   }, []);
 
   const getProducts = async (): Promise<Product[]> => {
-  const res = await fetch("http://localhost:3000/products/visibles");
-  if (!res.ok) throw new Error("Error al obtener productos");
-  const data = await res.json();
-  return Array.isArray(data) ? data : [];
-};
-
+    const res = await fetch("http://localhost:3000/products/visibles");
+    if (!res.ok) throw new Error("Error al obtener productos");
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  };
 
   const searchProducts = async (name: string) => {
     const token = localStorage.getItem("token");
@@ -56,12 +57,11 @@ export default function Products() {
     );
 
     if (!res.ok) throw new Error("Error al buscar productos");
-    return res.json(); // devuelve { message, data: [...] }
+    return res.json();
   };
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
-      // Si el input está vacío, mostramos todos los productos
       setProducts(allProducts);
       return;
     }
@@ -80,67 +80,110 @@ export default function Products() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500 text-lg">Cargando productos...</p>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        fontSize: '1.2rem',
+        color: '#666'
+      }}>
+        Cargando productos...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 p-8">
-      <h2 className="text-4xl font-bold text-gray-800 mb-8 text-center flex items-center justify-center gap-2">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #f5f5f5, #e0e0e0)',
+      padding: '2rem',
+      fontFamily: 'Segoe UI, sans-serif'
+    }}>
+      <h2 style={{
+        fontSize: '2.5rem',
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: '2rem',
+        textAlign: 'center',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '0.5rem'
+      }}>
         🛒 Nuestros Productos
       </h2>
 
+      {/* Botón para volver */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            padding: '0.6rem 1.2rem',
+            background: '#555',
+            color: '#fff',
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            fontWeight: '500',
+            transition: 'background 0.3s ease'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.background = '#444'}
+          onMouseOut={(e) => e.currentTarget.style.background = '#555'}
+        >
+          ← Volver
+        </button>
+      </div>
+
       {/* Barra de búsqueda */}
-      <div className="flex justify-center mb-8">
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
         <input
           type="text"
           placeholder="Buscar producto..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full max-w-md px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          style={{
+            width: '100%',
+            maxWidth: '400px',
+            padding: '0.6rem 1rem',
+            borderRadius: '8px',
+            border: '1px solid #ccc',
+            outline: 'none',
+            fontSize: '1rem',
+            marginRight: '0.5rem'
+          }}
         />
         <button
           onClick={handleSearch}
-          className="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          style={{
+            padding: '0.6rem 1.2rem',
+            background: '#007bff',
+            color: '#fff',
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            fontWeight: '500',
+            transition: 'background 0.3s ease'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.background = '#0069d9'}
+          onMouseOut={(e) => e.currentTarget.style.background = '#007bff'}
         >
           Buscar
         </button>
       </div>
 
       {products.length === 0 ? (
-        <p className="text-center text-gray-500 text-lg">
+        <p style={{ textAlign: 'center', fontSize: '1.1rem', color: '#666' }}>
           No hay productos disponibles en este momento.
         </p>
       ) : (
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div style={{
+          display: 'grid',
+          gap: '2rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))'
+        }}>
           {products.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transform hover:scale-105 transition duration-300"
-            >
-              {/* Imagen del producto */}
-              <div className="relative">
-                <img alt={product.name} className="w-full h-56 object-cover" />
-                <span className="absolute top-3 right-3 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                  ${product.price}
-                </span>
-              </div>
-
-              {/* Información del producto */}
-              <div className="p-5 flex flex-col justify-between h-40">
-                <h3 className="text-lg font-semibold text-gray-800 truncate">
-                  {product.name}
-                </h3>
-                <p className="text-gray-500 text-sm mt-2 line-clamp-2">
-                  {product.description || "Producto sin descripción"}
-                </p>
-                <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-                  Añadir al carrito
-                </button>
-              </div>
-            </div>
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       )}

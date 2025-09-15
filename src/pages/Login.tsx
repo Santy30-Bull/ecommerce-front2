@@ -28,32 +28,19 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      // Llamada a tu backend usando la API centralizada
       const data = await loginRequest(email, password);
-
       const token = data.access_token;
-      if (!token) {
-        throw new Error("El backend no devolvió un token");
-      }
+      if (!token) throw new Error("El backend no devolvió un token");
 
-      // Decodificamos el JWT para obtener email y rol
       const decoded = jwtDecode<DecodedToken>(token);
-
       const userData = {
         id: decoded.sub,
         email: decoded.email,
         role: decoded.role,
       };
 
-      // Guardar en el contexto y en localStorage
       login(userData, token);
-
-      // Redirigir según el rol
-      if (decoded.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/products");
-      }
+      navigate(decoded.role === "admin" ? "/admin" : "/products");
     } catch (err) {
       console.error("Error en login:", err);
       alert("Usuario o contraseña incorrectos");
@@ -61,62 +48,125 @@ export default function Login() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 px-4">
-      <div className="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8">
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #cce4ff, #b3d1f0)',
+      padding: '1rem',
+      fontFamily: 'Segoe UI, sans-serif',
+      boxSizing: 'border-box'
+    }}>
+      <div style={{
+        background: '#fff',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+        borderRadius: '16px',
+        width: '100%',
+        maxWidth: '420px',
+        padding: '2rem',
+        boxSizing: 'border-box'
+      }}>
         {/* Encabezado */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800">Bienvenido 👋</h2>
-          <p className="text-gray-500 mt-2">
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>Bienvenido 👋</h2>
+          <p style={{ color: '#666', marginTop: '0.5rem' }}>
             Ingresa tus credenciales para continuar
           </p>
         </div>
 
         {/* Formulario */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Input Email */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
+        <form onSubmit={handleSubmit}>
+          {/* Email */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#444', fontWeight: '500' }}>
               Correo electrónico
             </label>
             <input
               type="email"
               placeholder="ejemplo@correo.com"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                outline: 'none',
+                fontSize: '1rem',
+                transition: 'border 0.3s ease',
+                boxSizing: 'border-box'
+              }}
+              onFocus={(e) => e.currentTarget.style.border = '1px solid #007bff'}
+              onBlur={(e) => e.currentTarget.style.border = '1px solid #ccc'}
             />
           </div>
 
-          {/* Input Password */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
+          {/* Password */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#444', fontWeight: '500' }}>
               Contraseña
             </label>
             <input
               type="password"
               placeholder="••••••••"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+                outline: 'none',
+                fontSize: '1rem',
+                transition: 'border 0.3s ease',
+                boxSizing: 'border-box'
+              }}
+              onFocus={(e) => e.currentTarget.style.border = '1px solid #007bff'}
+              onBlur={(e) => e.currentTarget.style.border = '1px solid #ccc'}
             />
           </div>
 
           {/* Botón */}
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition transform hover:scale-[1.02] active:scale-95"
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              background: '#007bff',
+              color: '#fff',
+              borderRadius: '8px',
+              border: 'none',
+              fontWeight: '600',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              transition: 'background 0.3s ease, transform 0.2s ease'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = '#0069d9'}
+            onMouseOut={(e) => e.currentTarget.style.background = '#007bff'}
+            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
             Ingresar
           </button>
         </form>
 
         {/* Footer */}
-        <p className="text-sm text-gray-500 text-center mt-8">
+        <p style={{
+          fontSize: '0.9rem',
+          color: '#666',
+          textAlign: 'center',
+          marginTop: '2rem'
+        }}>
           ¿No tienes cuenta?{" "}
           <span
-            className="text-blue-600 hover:underline cursor-pointer"
+            style={{
+              color: '#007bff',
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
             onClick={() => navigate("/signup")}
           >
             Regístrate aquí

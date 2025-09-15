@@ -5,6 +5,7 @@ import AdminPage from "./pages/Admin";
 import Login from "./pages/Login";
 import Signup from "./pages/SignUp";
 import Navbar from "./components/Navbar";
+import Perfil from "./pages/Perfil";
 
 export default function AppRoutes() {
   const location = useLocation();
@@ -32,6 +33,7 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/perfil/:id" element={<Perfil />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>
